@@ -1,35 +1,46 @@
 # layro
 
-`layro` 是一个给 AI Agent 用的轻量 CLI 抽象层。
+`layro` is a small CLI for AI agents and automation workflows that need stable local file operations without ad-hoc package installs.
 
-它不试图替 Agent 思考，只是把常见能力先封装成稳定的命令行入口，减少临时装包、写脚本、处理格式的摩擦。
+It currently focuses on two high-friction jobs:
 
-当前版本只提供一个能力：
+- `extract`: extract readable text from local files
+- `ocr`: recognize text inside local image files
 
-- `extract`：从本地文件中提取可读文本
+`layro` is intentionally narrow. It does not try to be a full document platform. It aims to give agents one reliable command surface for common local text-ingestion work.
 
-## 安装
+[中文说明](./README.zh-CN.md)
+
+## Why
+
+Agent workflows often break on the same pattern:
+
+1. You pass a local file to an agent.
+2. The agent spends time trying packages, scripts, or shell hacks.
+3. The output shape is inconsistent, noisy, or fragile.
+
+`layro` packages that boring plumbing into a CLI with stable outputs.
+
+## Install
 
 ```bash
-npm i -g layro
+npm install -g layro
 ```
 
-也可以直接用：
+Or run it without installing globally:
 
 ```bash
-npx layro extract ./file.pdf
+npx layro extract ./resume.pdf
+npx layro ocr ./screenshot.png
 ```
 
-## 用法
+## Commands
 
-```bash
-layro extract ./resume.pdf
-layro extract ./resume.pdf --json
-layro extract ./resume.pdf --output result.txt
-layro extract ./notes.custom --type txt
-```
+### `extract`
 
-## 支持格式
+Extract readable text from local files.
+
+Supported file types:
 
 - `pdf`
 - `docx`
@@ -37,41 +48,104 @@ layro extract ./notes.custom --type txt
 - `txt`
 - `md`
 
-## 输出模式
-
-默认输出纯文本，适合直接在终端里看：
+Examples:
 
 ```bash
 layro extract ./resume.pdf
+layro extract ./resume.pdf --json
+layro extract ./report.docx --output ./report.txt
+layro extract ./notes.custom --type txt
 ```
 
-加 `--json` 后输出结构化结果，适合 Agent、脚本或其他程序读取：
+### `ocr`
+
+Recognize text from local image files.
+
+Current scope:
+
+- Works on image files, not native text files
+- Best for screenshots, scanned snippets, photos of text, and exported images
+- Scanned PDF OCR is not included yet in this release
+
+Common image inputs:
+
+- `png`
+- `jpg` / `jpeg`
+- `webp`
+- `tiff`
+- `gif`
+- other formats readable by `sharp`
+
+Examples:
 
 ```bash
-layro extract ./resume.pdf --json
+layro ocr ./receipt.png
+layro ocr ./receipt.png --json
+layro ocr ./screenshot.jpg --lang eng+chi_sim
+layro ocr ./hero-image.png --output ./hero-image.txt
+layro ocr ./single-line.png --psm SINGLE_LINE
 ```
 
-返回结构大致如下：
+## JSON Output
+
+Both commands support `--json` for programmatic consumption.
+
+Example:
 
 ```json
 {
   "ok": true,
-  "command": "extract",
-  "file": "/abs/path/resume.pdf",
-  "type": "pdf",
-  "text": "提取后的正文...",
+  "command": "ocr",
+  "file": "/abs/path/screenshot.png",
+  "text": "Recognized text...",
   "meta": {
-    "extractor": "pdf",
-    "chars": 1234
+    "extractor": "tesseract",
+    "language": "eng",
+    "confidence": 94.2,
+    "preprocessed": true
   }
 }
 ```
 
-## 开发
+## OCR Notes
+
+OCR is for text inside images.
+
+- If your input is a native text document like `.txt`, `.md`, `.html`, or `.docx`, use `extract`
+- If your input is a screenshot, scan, or photo, use `ocr`
+- If your input is a PDF that already contains text, use `extract`
+- If your input is a scanned PDF made of images, PDF OCR is a separate feature and is not in scope yet
+
+## Development
+
+Requirements:
+
+- Node.js `>=18`
+- pnpm `>=10`
+
+Setup:
 
 ```bash
 pnpm install
-pnpm --filter layro build
-pnpm --filter layro dev
-pnpm --filter layro test
+pnpm test
+pnpm build
 ```
+
+Local linking:
+
+```bash
+npm link
+layro extract ./tests/fixtures/resume.pdf --json
+npm unlink -g layro
+```
+
+## Docs
+
+- [Command Reference](./docs/COMMANDS.md)
+- [Contributing](./CONTRIBUTING.md)
+- [Security](./SECURITY.md)
+- [Changelog](./CHANGELOG.md)
+
+## License
+
+ISC

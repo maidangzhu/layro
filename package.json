@@ -1,9 +1,10 @@
 {
   "name": "layro",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
-  "description": "Layro CLI for local content extraction",
+  "description": "CLI tools for AI agents to extract local text and run OCR on images",
   "main": "dist/index.cjs",
+  "packageManager": "pnpm@10.28.2",
   "files": [
     "dist"
   ],
@@ -11,20 +12,36 @@
     "layro": "dist/index.cjs"
   },
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs --sourcemap --external:commander",
-    "dev": "esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs --sourcemap --external:commander --watch",
+    "build": "rm -rf dist && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs --external:commander --external:html-to-text --external:mammoth --external:pdf-parse --external:sharp --external:tesseract.js",
+    "dev": "rm -rf dist && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs --sourcemap --external:commander --external:html-to-text --external:mammoth --external:pdf-parse --external:sharp --external:tesseract.js --watch",
+    "check": "pnpm test && pnpm build",
+    "pack:dry-run": "npm pack --dry-run",
     "start": "node dist/index.cjs",
-    "test": "pnpm --filter @maidang/tests test -- src/layro/extract.test.ts",
+    "test": "jest --config jest.config.ts --runInBand",
+    "test:watch": "jest --config jest.config.ts --watch",
     "prepublishOnly": "pnpm build"
   },
   "keywords": [
+    "agent",
+    "ai",
     "cli",
     "extract",
+    "ocr",
     "pdf",
-    "docx"
+    "docx",
+    "image",
+    "automation"
   ],
   "author": "麦当",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maidangzhu/layro.git"
+  },
+  "homepage": "https://github.com/maidangzhu/layro#readme",
+  "bugs": {
+    "url": "https://github.com/maidangzhu/layro/issues"
+  },
   "engines": {
     "node": ">=18"
   },
@@ -32,11 +49,16 @@
     "commander": "^14.0.3",
     "html-to-text": "^9.0.5",
     "mammoth": "^1.10.0",
-    "pdf-parse": "^1.1.1"
+    "pdf-parse": "^1.1.1",
+    "sharp": "^0.34.5",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.3.5",
     "esbuild": "^0.27.3",
+    "jest": "^30.3.0",
+    "ts-jest": "^29.4.6",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }

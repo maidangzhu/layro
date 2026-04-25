@@ -1,37 +1,42 @@
-import path from 'path'
 import { Command } from 'commander'
-import { extractFile, type ExtractFileType } from '../extractors'
+import path from 'path'
+import { performOcr } from '../ocr'
 import { CliError, toErrorPayload } from '../utils/errors'
 import { writeJson, writePlainText, writeTextOutput } from '../utils/output'
 
-type ExtractOptions = {
+type OcrOptions = {
   json?: boolean
   output?: string
-  type?: string
+  lang?: string
+  preprocess?: boolean
+  psm?: string
 }
 
 type SuccessPayload = {
   ok: true
-  command: 'extract'
+  command: 'ocr'
   file: string
-  type: ExtractFileType
   text: string
   meta: Record<string, unknown>
 }
 
-export function createExtractCommand(): Command {
-  return new Command('extract')
-    .description('Extract readable text from local files')
-    .argument('<file>', 'file path to extract')
+export function createOcrCommand(): Command {
+  return new Command('ocr')
+    .description('Recognize text from local image files')
+    .argument('<file>', 'image file path to OCR')
     .option('--json', 'output structured JSON')
-    .option('-o, --output <path>', 'write extracted text to a file')
-    .option('--type <type>', 'override detected file type')
-    .action(async (file: string, options: ExtractOptions) => {
+    .option('-o, --output <path>', 'write recognized text to a file')
+    .option('-l, --lang <language>', 'Tesseract language, e.g. eng or eng+chi_sim')
+    .option('--psm <mode>', 'page segmentation mode, e.g. AUTO, SINGLE_LINE, or 7')
+    .option('--no-preprocess', 'skip image preprocessing before OCR')
+    .action(async (file: string, options: OcrOptions) => {
       const resolvedFile = path.resolve(file)
 
       try {
-        const result = await extractFile(resolvedFile, {
-          type: options.type,
+        const result = await performOcr(resolvedFile, {
+          language: options.lang,
+          preprocess: options.preprocess,
+          psm: options.psm,
         })
 
         if (options.output) {
@@ -40,9 +45,8 @@ export function createExtractCommand(): Command {
 
         const payload: SuccessPayload = {
           ok: true,
-          command: 'extract',
+          command: 'ocr',
           file: resolvedFile,
-          type: result.type,
           text: result.text,
           meta: result.meta,
         }
@@ -54,19 +58,14 @@ export function createExtractCommand(): Command {
 
         writePlainText(result.text)
       } catch (error) {
-        const payload = toErrorPayload(
-          error,
-          'extract',
-          resolvedFile,
-          options.type
-        )
+        const payload = toErrorPayload(error, 'ocr', resolvedFile)
 
         if (options.json) {
           writeJson(payload, process.stderr)
         } else if (error instanceof CliError) {
           process.stderr.write(`${error.message}\n`)
         } else {
-          process.stderr.write('Unexpected extract failure\n')
+          process.stderr.write('Unexpected OCR failure\n')
         }
 
         process.exit(1)
