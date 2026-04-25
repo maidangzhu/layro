@@ -1,0 +1,43 @@
+{
+  "name": "layro",
+  "version": "0.1.1",
+  "type": "module",
+  "description": "Layro CLI for local content extraction",
+  "main": "dist/index.cjs",
+  "files": [
+    "dist"
+  ],
+  "bin": {
+    "layro": "dist/index.cjs"
+  },
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs --sourcemap --external:commander",
+    "dev": "esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs --sourcemap --external:commander --watch",
+    "start": "node dist/index.cjs",
+    "test": "pnpm --filter @maidang/tests test -- src/layro/extract.test.ts",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "cli",
+    "extract",
+    "pdf",
+    "docx"
+  ],
+  "author": "麦当",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "html-to-text": "^9.0.5",
+    "mammoth": "^1.10.0",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.5",
+    "esbuild": "^0.27.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
