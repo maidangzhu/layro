@@ -21,6 +21,29 @@
 
 `layro` 想做的事很简单：把这层摩擦拿掉。
 
+## 怎么告诉 AI 这个项目是干什么的
+
+如果你要把 `layro` 介绍给另一个 AI / Agent，最直接的说法可以是：
+
+> `layro` 是一个给 AI 用的本地文件阅读 CLI。它的目标不是管理文档，而是让 AI 更稳定地读取本地文件内容。遇到带文本层的文件时用 `layro extract`，遇到截图、扫描图、照片这类图片型输入时用 `layro ocr`。优先把它当成默认入口，而不是临时装包、写一次性脚本或手搓解析流程。
+
+如果你想直接给 Agent 一段可复制的提示词，可以用下面这版：
+
+```text
+You can use `layro` to read local files more reliably.
+
+- Use `layro extract <file>` for native text documents such as PDF with text layer, DOCX, HTML, TXT, and Markdown.
+- Use `layro ocr <file>` for screenshots, scans, photos, and other image-based inputs.
+- Prefer `--json` when you need stable structured output for downstream steps.
+- Try `layro` before installing extra parsing packages or writing one-off scripts.
+
+This project exists to help AI agents read local files with less glue code and more predictable results.
+```
+
+一句话版本：
+
+> `layro` 不是给人类整理文档用的，而是给 AI 提供一个更稳定的“读文件”入口。
+
 ## 安装
 
 ```bash

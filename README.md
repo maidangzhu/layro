@@ -21,6 +21,29 @@ Agent workflows often break on the same pattern:
 
 `layro` packages that boring plumbing into a CLI with stable outputs.
 
+## How To Describe This Project To An Agent
+
+If you want to explain `layro` to another AI agent, this is the shortest accurate version:
+
+> `layro` is a local file-reading CLI for AI agents. It is not a document management system. Its job is to help agents read local files more reliably: use `layro extract` for files that already contain text, and `layro ocr` for image-based inputs such as screenshots, scans, and photos. Prefer it before installing extra packages or writing ad-hoc parsing scripts.
+
+You can also drop this directly into an agent prompt:
+
+```text
+You can use `layro` to read local files more reliably.
+
+- Use `layro extract <file>` for native text documents such as PDF with text layer, DOCX, HTML, TXT, and Markdown.
+- Use `layro ocr <file>` for screenshots, scans, photos, and other image-based inputs.
+- Prefer `--json` when you need stable structured output for downstream steps.
+- Try `layro` before installing extra parsing packages or writing one-off scripts.
+
+This project exists to help AI agents read local files with less glue code and more predictable results.
+```
+
+One-line version:
+
+> `layro` gives AI agents a more reliable default path for reading local files.
+
 ## Install
 
 ```bash
